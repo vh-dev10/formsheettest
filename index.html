@@ -116,7 +116,7 @@
         <h2>Contact Us</h2>
         <p>Have a question or want to work together? Fill out the form below.</p>
         
-        <form id="contact-form" action="#" method="post">
+        <form id="contactForm">
             
             <div class="form-group">
                 <label for="name">Full Name</label>
@@ -144,4 +144,40 @@
     </div>
 
 </body>
+<script>
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyD-WXsH9aWvIxh0vy0xj-8AWENOuKfT7kOR64ZrkQFQNu2BoEbqUvGrabyYFKU15gH/exec"; // replace with your Apps Script web app URL
+
+    document.getElementById('contactForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      // show working
+      //const statusEl = document.getElementById('status');
+      //statusEl.textContent = 'Sending...';
+
+      try {
+        const res = await fetch(WEBAPP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data && data.status === 'success') {
+          alert('Thanks! Your message was saved.');
+          form.reset();
+        } else {
+          alert('Error saving message: ' + (data.message || JSON.stringify(data)));
+        }
+      } catch (err) {
+        alert('Network or CORS error: ' + err.toString());
+        console.error(err);
+      }
+    });
+</script>
 </html>
