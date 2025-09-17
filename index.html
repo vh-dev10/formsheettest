@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* Basic Reset & Body Styling */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f4f7f6;
@@ -22,8 +21,6 @@
             margin: 0;
             padding: 20px;
         }
-
-        /* Form Container */
         .form-container {
             background-color: #ffffff;
             padding: 40px;
@@ -33,8 +30,6 @@
             max-width: 500px;
             box-sizing: border-box;
         }
-        
-        /* Form Header */
         h2 {
             margin-top: 0;
             margin-bottom: 15px;
@@ -42,28 +37,21 @@
             font-weight: 600;
             text-align: center;
         }
-        
         p {
             margin-bottom: 30px;
             text-align: center;
             color: #666;
         }
-
-        /* Form Grouping */
         .form-group {
             margin-bottom: 20px;
             position: relative;
         }
-
-        /* Labels */
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
             color: #555;
         }
-
-        /* Input and Textarea Fields */
         input[type="text"],
         input[type="email"],
         textarea {
@@ -71,26 +59,22 @@
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-sizing: border-box; /* Important for padding to not affect width */
+            box-sizing: border-box;
             font-size: 16px;
             font-family: 'Poppins', sans-serif;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-
         input[type="text"]:focus,
         input[type="email"]:focus,
         textarea:focus {
             border-color: #007bff;
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-            outline: none; /* Removes the default browser outline */
+            outline: none;
         }
-        
         textarea {
-            resize: vertical; /* Allows vertical resizing, not horizontal */
+            resize: vertical;
             min-height: 120px;
         }
-
-        /* Submit Button */
         button {
             width: 100%;
             padding: 15px;
@@ -103,11 +87,16 @@
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
         }
-        
         button:hover {
             background-color: #0056b3;
-            transform: translateY(-2px); /* Slight lift effect on hover */
+            transform: translateY(-2px);
         }
+        .status {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        iframe { display: none; }
     </style>
 </head>
 <body>
@@ -116,8 +105,10 @@
         <h2>Contact Us</h2>
         <p>Have a question or want to work together? Fill out the form below.</p>
         
-        <form action="https://script.google.com/macros/s/AKfycbyD-WXsH9aWvIxh0vy0xj-8AWENOuKfT7kOR64ZrkQFQNu2BoEbqUvGrabyYFKU15gH/exec" method="post">
-            
+        <!-- Hidden iframe target -->
+        <iframe name="hidden_iframe" id="hidden_iframe"></iframe>
+
+        <form id="contact-form" method="post" target="hidden_iframe">
             <div class="form-group">
                 <label for="name">Full Name</label>
                 <input type="text" id="name" name="name" placeholder="Enter your full name" required autocomplete="name">
@@ -139,45 +130,36 @@
             </div>
             
             <button type="submit">Send Message</button>
-            
         </form>
+
+        <div id="status" class="status"></div>
     </div>
 
-</body>
-<script>
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyD-WXsH9aWvIxh0vy0xj-8AWENOuKfT7kOR64ZrkQFQNu2BoEbqUvGrabyYFKU15gH/exec"; // replace with your Apps Script web app URL
+    <script>
+        const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyD-WXsH9aWvIxh0vy0xj-8AWENOuKfT7kOR64ZrkQFQNu2BoEbqUvGrabyYFKU15gH/exec"; // 🔗 Replace with your Apps Script Web App URL
 
-    document.getElementById('contactForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const payload = Object.fromEntries(formData.entries());
+        const form = document.getElementById("contact-form");
+        const statusEl = document.getElementById("status");
 
-      // show working
-      //const statusEl = document.getElementById('status');
-      //statusEl.textContent = 'Sending...';
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
 
-      try {
-        const res = await fetch(WEBAPP_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
+            // set form action to Google Apps Script endpoint
+            form.action = WEBAPP_URL;
+
+            statusEl.textContent = "Sending...";
+
+            // submit form to hidden iframe
+            form.submit();
+
+            // show success after delay
+            setTimeout(() => {
+                statusEl.textContent = "✅ Message sent successfully!";
+                form.reset();
+            }, 1200);
         });
+    </script>
 
-        const data = await res.json();
-
-        if (data && data.status === 'success') {
-          alert('Thanks! Your message was saved.');
-          form.reset();
-        } else {
-          alert('Error saving message: ' + (data.message || JSON.stringify(data)));
-        }
-      } catch (err) {
-        alert('Network or CORS error: ' + err.toString());
-        console.error(err);
-      }
-    });
-</script>
+</body>
 </html>
+
